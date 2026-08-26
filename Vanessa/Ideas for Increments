@@ -1,0 +1,2 @@
+- Add a Student class that inherits the Customer class so the bookstore can serve as both a generic and college/university bookstore
+- Reverify design patterns and make sure the implementations are correct

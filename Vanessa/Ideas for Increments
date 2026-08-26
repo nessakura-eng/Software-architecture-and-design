@@ -1,2 +1,3 @@
+- Add OrderState and ReturnState interfaces (Order -> OrderState -> All states and ReturnRequest -> ReturnState -> All states)
 - Implement Observer pattern for Inventory -> System Administrator and Adapter pattern for PaymentMethod/PaymentGateway
 - Reverify design patterns and make sure the implementations are correct

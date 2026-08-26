@@ -1,3 +1,2 @@
-- Add a Student class that inherits the Customer class so the bookstore can serve as both a generic and college/university bookstore (research if this is a good idea first)
 - Implement Observer pattern for Inventory -> System Administrator and Adapter pattern for PaymentMethod/PaymentGateway
 - Reverify design patterns and make sure the implementations are correct

@@ -76,11 +76,11 @@ The Backup package addresses persistence and recovery of bookstore data.
 
 A database is essential because the bookstore must retain information beyond an individual session. Vaidya et al. specifically develop an online bookstore using a real-time database and identify database management, inventory synchronization, users, books, and orders as important system concerns. [3]
 
-### `DatabaseSnapshot`
+### `DatabaseMemento`
 
-`DatabaseSnapshot` represents a saved state of the database that can be used for recovery.
+`DatabaseMemento` represents a saved state of the database that can be used for recovery.
 
-The need for persistent bookstore data is supported by the online-bookstore literature, but the specific `DatabaseSnapshot` class is a reliability design decision. It was included to provide a mechanism for restoring the bookstore's persistent data if the active database becomes corrupted or unavailable.
+The need for persistent bookstore data is supported by the online-bookstore literature, but the specific `DatabaseMemento` class is a reliability design decision. It was included to provide a mechanism for restoring the bookstore's persistent data if the active database becomes corrupted or unavailable.
 
 This class therefore represents an infrastructure/reliability concern rather than a bookstore business-domain object.
 
@@ -229,9 +229,9 @@ Returns are a recognized component of online-bookstore systems. Perera includes 
 
 It separates the return-processing workflow from the `Return` data object.
 
-### `ReturnEligibility`
+### `ReturnPolicy`
 
-`ReturnEligibility` defines the rules used to determine whether an item can be returned.
+`ReturnPolicy` defines the rules used to determine whether an item can be returned.
 
 This interface is important because return eligibility can depend on the type of product and the circumstances of the purchase.
 
@@ -249,7 +249,7 @@ This policy contains return rules applicable to digital books.
 
 The distinction is justified by real-world bookstore behavior. Amazon specifically identifies a separate return window for accidentally purchased digital books that have not been read, while Barnes & Noble handles eBooks through its digital-content/account system. [4][6]
 
-Therefore, the Strategy/Policy-style abstraction represented by `ReturnEligibility` allows the bookstore to apply different rules without placing every return rule inside the `Return` class.
+Therefore, the Strategy/Policy-style abstraction represented by `ReturnPolicy` allows the bookstore to apply different rules without placing every return rule inside the `Return` class.
 
 ---
 
@@ -437,7 +437,7 @@ The order's current lifecycle is represented through `OrderState`, allowing the 
 
 ### Order → Return
 
-After an order has been placed, the customer can initiate a `Return`. `ReturnService` processes the return, while `ReturnEligibility` determines whether the particular book is eligible.
+After an order has been placed, the customer can initiate a `Return`. `ReturnService` processes the return, while `ReturnPolicy` determines whether the particular book is eligible.
 
 ### Return → ReturnState
 
@@ -453,7 +453,7 @@ Account operations are accessed through the `AccountAccess` abstraction, while `
 
 ### Database → System
 
-The database provides persistent storage for the system's users, books, inventory, carts, orders, payment information, and return information. `DatabaseSnapshot` provides a recovery mechanism for persistent data.
+The database provides persistent storage for the system's users, books, inventory, carts, orders, payment information, and return information. `DatabaseMemento` provides a recovery mechanism for persistent data.
 
 ---
 
@@ -521,7 +521,7 @@ The Proxy provides an intermediary for account access so that authentication and
 
 Used for:
 
-`ReturnEligibility → PhysicalBookReturnPolicy / EBookReturnPolicy`
+`ReturnPolicy → PhysicalBookReturnPolicy / EBookReturnPolicy`
 
 The abstraction allows return rules to vary according to the type of product without placing every possible rule inside the `Return` class.
 
@@ -551,7 +551,7 @@ The interfaces provide abstraction:
 
 - `AccountAccess`
 - `OrderState`
-- `ReturnEligibility`
+- `ReturnPolicy`
 - `ReturnState`
 - `Observer`
 - `PaymentMethod`
@@ -588,16 +588,16 @@ Vaidya et al. specifically identify modularity, extensibility, inheritance, poly
 
 The diagram can be summarized as seven major capabilities:
 
-| CapabilityClasses               |                                                                                                                                                    |
+| Capability | Classes |
 | ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Customer/account management** | `User`, `Customer`, `BookstoreAdministrator`, `SystemAdministrator`, `AccountManager`, `AccountAccess`, `SecureAccountProxy`, `PasswordResetToken` |
 | **Book catalog/discovery**      | `Book`, `PhysicalBook`, `EBook`, `Search`                                                                                                          |
 | **Shopping**                    | `Cart`, `CartItem`                                                                                                                                 |
 | **Ordering**                    | `OrderService`, `Order`, `OrderItem`, `OrderState` and states                                                                                      |
-| **Returns**                     | `ReturnService`, `Return`, `ReturnEligibility`, return policies, return states                                                                     |
+| **Returns**                     | `ReturnService`, `Return`, `ReturnPolicy`, return policies, return states                                                                     |
 | **Inventory**                   | `Inventory`, `Observer`, `LowStockNotifier`                                                                                                        |
 | **Payment**                     | `PaymentFactory`, `PaymentMethod`, payment implementations, `PaymentGateway`, `StripeGatewayAdapter`, `StripeAPI`                                  |
-| **Persistence/recovery**        | `Database`, `DatabaseSnapshot`                                                                                                                     |
+| **Persistence/recovery**        | `Database`, `DatabaseMemento`                                                                                                                     |
 
 These capabilities correspond to the actual online-bookstore workflow observed in the academic and industry sources: a customer accesses an account, searches for books, selects a physical or digital book, adds it to a cart, checks out, provides payment and shipping information when applicable, receives an order, tracks the order, and may subsequently initiate a return. Barnes & Noble demonstrates the search → format selection → cart → checkout → account → order workflow for eBooks; Books-A-Million documents the cart → checkout → payment/shipping → order-submission workflow; and Amazon demonstrates order-based return processing and product-dependent return eligibility. [4][5][6]
 
@@ -621,7 +621,7 @@ For example, the sources directly support the existence of:
 - databases,
 - order tracking.
 
-The more specific classes such as `PaymentFactory`, `StripeGatewayAdapter`, `SecureAccountProxy`, `DatabaseSnapshot`, and `LowStockNotifier` are **architectural design decisions made for this proposed system**. Their purpose is to provide a clean object-oriented implementation of the requirements established by the bookstore domain.
+The more specific classes such as `PaymentFactory`, `StripeGatewayAdapter`, `SecureAccountProxy`, `DatabaseMemento`, and `LowStockNotifier` are **architectural design decisions made for this proposed system**. Their purpose is to provide a clean object-oriented implementation of the requirements established by the bookstore domain.
 
 This distinction is important because a public bookstore website exposes its functionality, but it does not expose its complete internal software architecture.
 
